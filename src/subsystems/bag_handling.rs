@@ -56,8 +56,8 @@ impl BagDispenser {
         Self { motor, photo_eye }
     }
     pub async fn dispense(&self) -> Result<(), Box<dyn Error>> {
-        self.motor.set_velocity(3.0).await.unwrap();
-        self.motor.relative_move(1000.0).await.unwrap();
+        self.motor.set_velocity(2.0).await.unwrap();
+        self.motor.relative_move(400.0).await.unwrap();
         while !self.photo_eye.get_state().await.unwrap() {
             sleep(Duration::from_millis(100)).await;
         }
@@ -65,10 +65,10 @@ impl BagDispenser {
         Ok(())
     }
     pub async fn pull_back(&self) -> Result<(), Box<dyn Error>> {
-        self.motor.set_velocity(0.5).await.unwrap();
+        self.motor.set_velocity(1f64).await.unwrap();
         self.motor.relative_move(-4.5).await.unwrap();
         while self.motor.get_status().await.unwrap() == Status::Moving {
-            sleep(Duration::from_millis(100)).await;
+            sleep(Duration::from_millis(10)).await;
         }
         Ok(())
     }

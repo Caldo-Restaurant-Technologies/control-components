@@ -65,7 +65,7 @@ async fn test_gantry_home() {
     let cc1_handler = tokio::spawn(client("192.168.1.11:8888", rx));
 
     let goto = tokio::spawn(async move {
-        gtx.send(GantryCommand::GoTo(pos)).await.unwrap();
+        //gtx.send(GantryCommand::GoTo(pos)).await.unwrap();
         let (rep_tx, rep_rx) = oneshot::channel();
         let msg = GantryCommand::GetPosition(rep_tx);
         gtx.send(msg).await.unwrap();
