@@ -211,7 +211,7 @@ impl Node {
             .await
             .expect("TODO: panic message");
         self.motor
-            .relative_move(10000.0)
+            .relative_move(100.0)
             .await
             .expect("Failed to update");
         loop {
@@ -229,7 +229,7 @@ impl Node {
             if curr_time - last_sent_motor > send_command_delay {
                 last_sent_motor = Instant::now();
                 self.motor
-                    .relative_move(10000.0)
+                    .relative_move(10.0)
                     .await
                     .expect("Failed to update");
             }
