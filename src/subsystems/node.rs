@@ -106,7 +106,7 @@ impl Node {
             .set_velocity(2. * parameters.motor_speed)
             .await
             .unwrap();
-        self.motor.relative_move(-10000.).await.unwrap();
+        // self.motor.relative_move(-10000.).await.unwrap();
 
         // Set LP filter values
         let filter_period = 1. / parameters.sample_rate;
@@ -175,7 +175,7 @@ impl Node {
                         .expect("Failed to change speed");
                 }
                 self.motor
-                    .relative_move(10000.0)
+                    .relative_move(1000.0)
                     .await
                     .expect("Failed to update");
             }
