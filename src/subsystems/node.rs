@@ -138,7 +138,7 @@ impl Node {
             .await
             .expect("Failed to change velocity");
         self.motor
-            .relative_move(10000.)
+            .relative_move(100.)
             .await
             .expect("Failed to send move command");
         let (scale, dispensed) = loop {
@@ -175,7 +175,7 @@ impl Node {
                         .expect("Failed to change speed");
                 }
                 self.motor
-                    .relative_move(1000.0)
+                    .relative_move(100.0)
                     .await
                     .expect("Failed to update");
             }
