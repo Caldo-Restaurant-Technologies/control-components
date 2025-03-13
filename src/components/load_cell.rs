@@ -22,7 +22,7 @@ impl LoadCell {
         }
     }
 
-    pub fn connect(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn connect(&mut self) -> Result<(), Box<dyn Error + Send + Sync>> {
         self.vin.set_serial_number(self.phidget_id)?;
         self.vin.set_channel(self.channel_id)?;
         self.vin.open_wait(TIMEOUT)?;
@@ -36,7 +36,7 @@ impl LoadCell {
         Ok(())
     }
 
-    pub fn get_reading(&self) -> Result<f64, Box<dyn Error>> {
+    pub fn get_reading(&self) -> Result<f64, Box<dyn Error + Send + Sync>> {
         // Gets the reading of a load cell from
         // Phidget.
         let reading = self.vin.voltage_ratio()?;
@@ -47,7 +47,7 @@ impl LoadCell {
         &self,
         duration: Duration,
         sample_rate: usize,
-    ) -> Result<(Vec<Duration>, Vec<f64>), Box<dyn Error>> {
+    ) -> Result<(Vec<Duration>, Vec<f64>), Box<dyn Error + Send + Sync>> {
         let mut times = Vec::new();
         let mut readings = Vec::new();
         let data_interval = Duration::from_secs_f64(1. / (sample_rate as f64));

@@ -11,7 +11,7 @@ use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::sync::oneshot;
 use tokio::time::{Duration, Instant, MissedTickBehavior};
 
-pub type DiagnoseResult = Result<(Scale, Vec<Duration>, Vec<f64>), Box<dyn Error>>;
+pub type DiagnoseResult = Result<(Scale, Vec<Duration>, Vec<f64>), Box<dyn Error + Send + Sync>>;
 pub struct Scale {
     cells: [LoadCell; 4],
     cell_coefficients: Vec<f64>,
@@ -40,7 +40,7 @@ impl Scale {
         (tx, actor(self, rx))
     }
 
-    pub fn connect(mut self) -> Result<Self, Box<dyn Error>> {
+    pub fn connect(mut self) -> Result<Self, Box<dyn Error + Send + Sync>> {
         for cell in 0..self.cells.len() {
             self.cells[cell].connect()?;
         }
@@ -48,7 +48,7 @@ impl Scale {
         Ok(self)
     }
 
-    fn get_readings(scale: Self) -> Result<(Self, Vec<f64>), Box<dyn Error>> {
+    fn get_readings(scale: Self) -> Result<(Self, Vec<f64>), Box<dyn Error + Send + Sync>> {
         // Gets each load cell reading from Phidget
         // and returns them in a matrix.
         let readings: Vec<f64> = scale
@@ -60,7 +60,7 @@ impl Scale {
         Ok((scale, readings))
     }
 
-    pub fn live_weigh(mut scale: Self) -> Result<(Self, f64), Box<dyn Error>> {
+    pub fn live_weigh(mut scale: Self) -> Result<(Self, f64), Box<dyn Error + Send + Sync>> {
         // Gets the instantaneous weight measurement
         // from the scale by taking the sum of each
         // load cell's reading, weighted by its
@@ -75,7 +75,7 @@ impl Scale {
         mut scale: Self,
         time: Duration,
         sample_rate: usize,
-    ) -> Result<(Self, f64), Box<dyn Error>> {
+    ) -> Result<(Self, f64), Box<dyn Error + Send + Sync>> {
         let mut weights = Vec::new();
         let delay = Duration::from_secs_f64(1. / sample_rate as f64);
         let start_time = Instant::now();
@@ -213,14 +213,14 @@ fn calibrate() {
 }
 
 #[test]
-fn connect_scale_cells() -> Result<(), Box<dyn Error>> {
+fn connect_scale_cells() -> Result<(), Box<dyn Error + Send + Sync>> {
     let scale = Scale::new(716709);
     Scale::connect(scale)?;
     Ok(())
 }
 
 #[test]
-fn read_scale() -> Result<(), Box<dyn Error>> {
+fn read_scale() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut scale = Scale::new(716709);
     scale = Scale::connect(scale)?;
     let (_scale, readings) = Scale::get_readings(scale)?;
@@ -229,7 +229,7 @@ fn read_scale() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn live_weigh_scale() -> Result<(), Box<dyn Error>> {
+fn live_weigh_scale() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut scale = Scale::new(716709);
     scale = Scale::connect(scale)?;
     let (_, weight) = Scale::live_weigh(scale)?;
@@ -239,7 +239,7 @@ fn live_weigh_scale() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn weigh_scale() -> Result<(), Box<dyn Error>> {
+fn weigh_scale() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut scale = Scale::new(716623);
     scale = Scale::connect(scale)?;
     // scale = Scale::change_coefficients(scale, vec![-4926943.639406107, 2486765.6938639805, -4985950.215221712, 4799388.712869379]);
