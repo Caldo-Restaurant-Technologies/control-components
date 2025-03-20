@@ -1,5 +1,5 @@
 use crate::components::clear_core_motor::ClearCoreMotor;
-use crate::components::scale::{Scale, ScaleCmd};
+use crate::components::scale::ScaleCmd;
 use log::{error, info};
 use serde::Deserialize;
 use std::fmt::Debug;
@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc::Sender;
 use tokio::sync::oneshot;
 use tokio::time::{interval, Duration, Instant, MissedTickBehavior};
-use crate::controllers::clear_core::{Controller, MotorBuilder};
+
 
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -142,7 +142,7 @@ impl Dispenser {
         }
     }
 
-    pub async fn dispense(&self, timeout: Duration) {
+    pub async fn dispense(&self, timeout: Duration) -> DispenseEndCondition {
         let init_time = Instant::now();
         match &self.setpoint {
             Setpoint::Weight(w) => {
@@ -210,7 +210,7 @@ impl Dispenser {
                 };
                 self.motor.abrupt_stop().await;
                 self.retract_after().await;
-                info!("End Condition: {:?}", end_condition);
+                end_condition
             }
             Setpoint::Timed(d) => {
                 self.motor.set_velocity(self.parameters.motor_speed).await;
@@ -219,6 +219,7 @@ impl Dispenser {
                 tokio::time::sleep(*d).await;
                 self.motor.abrupt_stop().await;
                 self.retract_after().await;
+                DispenseEndCondition::Timeout(d.as_secs_f64())
             }
         }
     }
@@ -232,6 +233,8 @@ pub enum DispenseEndCondition {
 
 #[tokio::test]
 async fn dispense() {
+    use crate::controllers::clear_core::{MotorBuilder, Controller};
+    use crate::components::scale::Scale;
     let (cc, cl) = Controller::with_client("192.168.1.12", &[MotorBuilder { id: 0, scale: 800}]);
     tokio::spawn(cl);
     let mut scale = Scale::new(716692);

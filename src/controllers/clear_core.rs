@@ -22,7 +22,7 @@ pub struct Message {
     pub response: oneshot::Sender<Vec<u8>>,
 }
 
-//TODO: Change to arrays using array::from_fn
+
 pub type Motors = Vec<ClearCoreMotor>;
 pub type Inputs = Vec<DigitalInput>;
 

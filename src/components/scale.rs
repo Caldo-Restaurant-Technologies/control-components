@@ -161,17 +161,6 @@ pub async fn actor(
     mut scale: Scale,
     mut receiver: Receiver<ScaleCmd>,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let time_start = Instant::now();
-    while !scale.connected {
-        info!("Waiting for scale connection...");
-        let current_time = Instant::now();
-        if current_time - time_start > Duration::from_secs(20) {
-            panic!("Failed to connect load cells");
-        }
-        tokio::time::sleep(Duration::from_secs(1)).await;
-    }
-    info!("Load cell amplifier connection successful");
-    // Hardset at 100 Hz sample rate
     let mut tick_interval = tokio::time::interval(Duration::from_millis(10));
     tick_interval.set_missed_tick_behavior(MissedTickBehavior::Skip);
     let shutdown = Arc::new(AtomicBool::new(false));

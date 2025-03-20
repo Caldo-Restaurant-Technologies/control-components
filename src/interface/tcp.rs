@@ -1,5 +1,5 @@
 use crate::controllers::clear_core::Message;
-use log::{error, info};
+use log::error;
 use std::error::Error;
 use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -12,9 +12,9 @@ pub async fn client<T: ToSocketAddrs>(
     mut msg: mpsc::Receiver<Message>,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut stream = TcpStream::connect(addr).await?;
-    let peer_addr = stream.peer_addr().expect(" Peer not connected");
-    info!("Client connected with peer address: {peer_addr}");
-    println!("DEBUG: peer address is {peer_addr}");
+    if let Err(e) = stream.peer_addr() {
+        error!("{}",e);
+    };
     let mut tick_interval = tokio::time::interval(Duration::from_millis(5));
     tick_interval.set_missed_tick_behavior(MissedTickBehavior::Skip);
     while let Some(message) = msg.recv().await {
