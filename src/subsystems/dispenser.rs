@@ -198,7 +198,7 @@ impl Dispenser {
                         info!("Check offset reached");
                         self.motor.abrupt_stop().await;
                         let check_weight = self
-                            .get_median_weight(30, self.parameters.sample_rate)
+                            .get_median_weight(10_000_000, self.parameters.sample_rate)
                             .await;
                         if check_weight < target_weight + self.parameters.stop_offset {
                             break DispenseEndCondition::WeightAchieved(init_weight - check_weight);
