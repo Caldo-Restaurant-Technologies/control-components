@@ -55,6 +55,7 @@ impl ClearCoreMotor {
 
     pub async fn enable(&self) -> Result<&Self, Status> {
         let enable_cmd = [2, b'M', self.id + 48, b'E', b'N', 13];
+        log::debug!("Enabled motor id: {}", self.id);
         let resp = self.write(enable_cmd.as_ref()).await;
         if let Err(err) = self.check_reply(resp.as_slice()).await {
             Err(err)
@@ -65,6 +66,7 @@ impl ClearCoreMotor {
 
     pub async fn disable(&self) {
         let enable_cmd = [2, b'M', self.id + 48, b'D', b'E', 13];
+        log::debug!("Disabled motor id: {}", self.id);
         self.write(enable_cmd.as_ref()).await;
     }
 
@@ -80,6 +82,7 @@ impl ClearCoreMotor {
     }
 
     pub async fn relative_move(&self, position: f64) -> Result<(), Status> {
+        log::debug!("Called rel move on motor id: {}", self.id);
         let position = num_to_bytes((position * (self.scale as f64)).trunc() as isize);
         let mut msg: Vec<u8> = Vec::with_capacity(position.len() + self.prefix.len() + 1);
         msg.extend_from_slice(self.prefix.as_slice());
@@ -103,11 +106,13 @@ impl ClearCoreMotor {
 
     pub async fn abrupt_stop(&self) {
         let stop_cmd = [2, b'M', self.id + 48, b'A', b'S', 13];
+        log::debug!("Called abrupt stop on motor id: {}", self.id);
         self.write(stop_cmd.as_ref()).await;
     }
 
     pub async fn stop(&self) {
         let stop_cmd = [2, b'M', self.id + 48, b'S', b'T', 13];
+        log::debug!("Called abrupt stop on motor id: {}", self.id);
         self.write(stop_cmd.as_ref()).await;
     }
 
@@ -125,6 +130,7 @@ impl ClearCoreMotor {
         if velocity < 0. {
             velocity = 0.;
         }
+        log::debug!("Called set vel with a parameter of {}, on motor id {}", velocity, self.id);
         let vel = num_to_bytes((velocity * (self.scale as f64)).trunc() as isize);
         let mut msg: Vec<u8> = Vec::with_capacity(vel.len() + self.prefix.len() + 1);
         msg.extend_from_slice(self.prefix.as_slice());
@@ -135,6 +141,7 @@ impl ClearCoreMotor {
     }
 
     pub async fn set_acceleration(&self, acceleration: f64) {
+        log::debug!("Called set accel with a parameter of {}, on motor id {}", acceleration, self.id);
         let accel = num_to_bytes((acceleration * (self.scale as f64)).trunc() as isize);
         let mut msg: Vec<u8> = Vec::with_capacity(accel.len() + self.prefix.len() + 1);
         msg.extend_from_slice(self.prefix.as_slice());
@@ -145,6 +152,7 @@ impl ClearCoreMotor {
     }
 
     pub async fn set_deceleration(&self, deceleration: f64) {
+        log::debug!("Called set del with a parameter of {}, on motor id {}", deceleration, self.id);
         let accel = num_to_bytes((deceleration * (self.scale as f64)).trunc() as isize);
         let mut msg: Vec<u8> = Vec::with_capacity(accel.len() + self.prefix.len() + 1);
         msg.extend_from_slice(self.prefix.as_slice());
