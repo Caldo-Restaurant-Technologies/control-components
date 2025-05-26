@@ -19,6 +19,7 @@ pub async fn client<T: ToSocketAddrs>(
     tick_interval.set_missed_tick_behavior(MissedTickBehavior::Skip);
     while let Some(message) = msg.recv().await {
         stream.write_all(&message.buffer).await?;
+        log::info!("Msg sent: {}", String::from_utf8(message.buffer).unwrap());
         stream.readable().await?;
         let mut buffer = [0; 100];
         match stream.read(&mut buffer).await {
@@ -29,6 +30,7 @@ pub async fn client<T: ToSocketAddrs>(
                 if message.response.send(buffer.to_vec()).is_err() {
                     error!("Failed to send via channel");
                 }
+                log::info!("Msg Recv: {}", String::from_utf8(buffer.to_vec()).unwrap());
             }
             Err(e) => {
                 error!("Failed to read from stream: {}", e);
