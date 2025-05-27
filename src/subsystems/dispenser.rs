@@ -110,10 +110,12 @@ impl Dispenser {
                     })
                     .await;
             }
-            self.motor
+            if let Err(e) = self.motor
                 .relative_move(20.)
-                .await
-                .expect("Motor faulted or not enabled");
+                .await {
+                    log::error!("Motor Speed Update Failed due to: {:?}", e);
+                }
+                
             Some(Instant::now())
         } else {
             None
@@ -122,23 +124,29 @@ impl Dispenser {
     
     async fn retract_before(&self) {
         if let Some(retract) = self.parameters.retract_before {
-            self.motor
+            if let Err(e) = self.motor
                 .relative_move(-retract)
                 .await
-                .expect("Motor faulted");
-            self.motor
+                {
+                    log::error!("Conveyor reverse failed with error: {:?}", e);
+                }
+            if let Err(e) = self.motor
                 .wait_for_move(Duration::from_millis(50))
                 .await
-                .unwrap();
+                {
+                    log::error!("Conveyor reverse failed with error: {:?}", e);
+                }
         }
     }
     
     async fn retract_after(&self) {
         if let Some(retract) = self.parameters.retract_after {
-            self.motor
+            if let Err(e) = self.motor
                 .relative_move(-retract)
                 .await
-                .expect("Motor faulted");
+                {
+                    log::error!("Conveyor reverse failed with error: {:?}", e);
+                }
         }
     }
 
