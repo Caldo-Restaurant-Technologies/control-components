@@ -11,7 +11,6 @@ path = "src/lib.rs"
 phidget = "0.1.4"
 tokio = { version = "1.38.0", features = ["full"] }
 
-linalg = { git = "https://github.com/rileyhernandez/linalg.git" }
 serde = { version = "1.0.203", features = ["derive"] }
 ethercrab = "0.4.2"
 signal-hook = "0.3.17"
