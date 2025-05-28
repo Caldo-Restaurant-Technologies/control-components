@@ -45,7 +45,7 @@ impl ClearCoreMotor {
         if reply[REPLY_IDX] == FAILED_REPLY {
             error!(
                 "Response from motor controller: {:?}",
-                reply.to_ascii_lowercase()
+                String::from_utf8(reply.to_vec())
             );
             Err(self.get_status().await)
         } else {
